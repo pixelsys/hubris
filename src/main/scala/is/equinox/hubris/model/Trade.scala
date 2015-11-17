@@ -4,32 +4,71 @@ import java.util.Date
 
 trait Instrument {
   
-  def id : String
-  def tradeDate : Date
-  def value : Double
+  val id : String
+  val effectiveDate : Date
+  def value(cob: Date) : Double
   
 }
 
 trait Bond extends Instrument {
   
-  def notional : Double
+  val notional : Double
   
 }
 
-trait FixedRate extends Bond {
+trait FixedRateBond extends Bond {
   
-  def rate : Double
-  def expiration : Date
+  val rate : Double
+  val maturity : Date
   
 }
 
 trait FloatingRateNote extends Bond {
   
-  def benchmark : Benchmark
-  def expiration : Date
+  val benchmark : Benchmark
+  val maturity : Date
+  def rate(cob: Date) : Double
   
 }
 
-class IRSwap(id: String, notional: BigDecimal, tradeDate: Date) {  
+trait Counterparty {
+  
+  val counterparty : String
   
 }
+
+object Daycount extends Enumeration {
+  
+}
+
+
+trait FixedRateSwapLeg extends FixedRateBond with Counterparty
+
+trait FloatingRateSwapLeg extends FloatingRateNote with Counterparty {
+  
+  val fixedRate : Double
+  
+}
+
+object PayReceive extends Enumeration {
+  type PayReceive = Value
+  val Pay, Receive = Value  
+}
+
+import PayReceive._
+
+class IRSwap(val id: String, val notional: BigDecimal, val effectiveDate: Date, fixedLeg: FixedRateSwapLeg, floatingLeg: FloatingRateSwapLeg, side: PayReceive) extends Instrument {
+  
+  // coupon frequency - quarterly
+  // business day convention - modified following
+  // 
+  
+  def value(cob: Date): Double = {
+    // http://www.derivativepricing.com/blogpage.asp?id=8
+    ???
+  }
+  
+}
+  
+  
+  
