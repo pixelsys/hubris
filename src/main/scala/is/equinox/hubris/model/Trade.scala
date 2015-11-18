@@ -10,9 +10,24 @@ trait Instrument {
   
 }
 
+object CouponFrequency extends Enumeration {
+  type CouponFrequency = Value
+  val Zero, Quarterly, SemiAnnual = Value
+}
+
+object DayCountConvention extends Enumeration {
+  type DayCountConvention = Value
+  val `30/360`, `Actual/360` = Value
+}
+
+import CouponFrequency._
+import DayCountConvention._
+
 trait Bond extends Instrument {
   
   val notional : Double
+  val couponFrequency : CouponFrequency
+  val dayCount : DayCountConvention
   
 }
 
@@ -36,11 +51,6 @@ trait Counterparty {
   val counterparty : String
   
 }
-
-object Daycount extends Enumeration {
-  
-}
-
 
 trait FixedRateSwapLeg extends FixedRateBond with Counterparty
 
