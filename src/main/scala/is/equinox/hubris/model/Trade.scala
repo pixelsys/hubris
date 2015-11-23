@@ -41,7 +41,7 @@ trait FixedRateBond extends Bond {
 
 trait FloatingRateNote extends Bond {
   
-  val benchmark : Benchmark
+  val yieldcurve : YieldCurve
   val maturity : LocalDate
   def rate(cob: LocalDate) : Double
   
