@@ -31,9 +31,11 @@ trait YieldCurve {
   
 }
 
+class ZeroCurve
+
 object YieldCurve {
   
-  def loadFromCsv(name: String, file: File) = {
+  def loadFromCsv(name: String, cob: LocalDate, file: File) = {
     ???
   }
   

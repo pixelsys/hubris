@@ -6,12 +6,13 @@ class CsvSpec extends FlatSpec with MustMatchers {
 
   it should "not fail when quotes are inside a field" in {
       // given
-      val line1 = """ala,("ma"),kota"""
-      val line2 = """ala,asdf"ma"asdf,kota"""
-
+      val line1 = """Tom,Jones,Senior Director,buyer@salesforcesample.com,1940-06-07Z,"Self-described as ""the top"" branding guru on the West Coast""""
+      val line2 = "Ian,Dury,Chief Imagineer,cto@salesforcesample.com,,\"World-renowned expert in fuzzy logic design.\n" +
+                  "Influential in technology purchases.\""      
+      
       // when & then
-      SimpleCsvParser.fromString(line1)(0) must contain allOf("ala", """("ma")""", "kota")
-      SimpleCsvParser.fromString(line2)(0) must contain allOf("ala", """asdf"ma"asdf""", "kota")
+      SimpleCsvParser.fromString(line1)(0) must contain allOf("Tom", "Jones", "Senior Director", "buyer@salesforcesample.com", "1940-06-07Z", "Self-described as \"the top\" branding guru on the West Coast")
+      SimpleCsvParser.fromString(line2)(0) must contain allOf("Ian", "Dury", "Chief Imagineer", "cto@salesforcesample.com", "", "World-renowned expert in fuzzy logic design.\nInfluential in technology purchases.")
     }
 
   it should   "parse line with tabular separator" in {
@@ -74,14 +75,29 @@ class CsvSpec extends FlatSpec with MustMatchers {
 
   it should   "accept curly brace inside a field" in {
       // given
-      val line = "a,b,case{asd,c"
+      val line = "a,b,{\"json\":\"example\"},c"
 
       // when
       val csvLines = SimpleCsvParser.fromString(line)
-
+      
       // then
       csvLines must  have size 1
-      csvLines(0) must contain allOf("a", "b", "c", "case{asd")
+      csvLines(0) must contain allOf("a", "b", "c", "{\"json\":\"example\"}")
     }
 
+  it should   "place rows separately in the output Vector" in {
+    // given
+    val multiline = "colA,colB,colC\n" +
+                    "valA1,valB1,valC1\n" +
+                    "valA2,valB2,valC2"
+    // when
+    val csvLines = SimpleCsvParser.fromString(multiline)
+
+    // then
+    csvLines must  have size 3
+    csvLines(0) must contain allOf("colA", "colB", "colC")
+    csvLines(1) must contain allOf("valA1", "valB1", "valC1")
+    csvLines(2) must contain allOf("valA2", "valB2", "valC2")
+  }
+ 
 }

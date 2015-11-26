@@ -39,7 +39,6 @@ object SimpleCsvParser {
 	      row = new VectorBuilder[String]
 	      rowSize = 0
 	      line += 1
-	      Console.println("endLine gecco")
 	    }
 
 	    def doStateZero(c: Char): Unit = {
@@ -76,10 +75,7 @@ object SimpleCsvParser {
 	                case '}' => state = INITIAL_STATE; field.append(c)
 	                case _ => field.append(c)
 	              }
-	            case NORMAL_FIELD =>
-	              c match {
-	                case _ => if (c == sep) { endField(); state = INITIAL_STATE } else field.append(c)
-	              }
+	            case NORMAL_FIELD => doStateZero(c)
 	          }
 	      }
 	      state match {
