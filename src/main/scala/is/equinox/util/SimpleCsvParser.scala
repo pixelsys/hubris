@@ -12,6 +12,8 @@ import collection.immutable.VectorBuilder
 
 object SimpleCsvParser {
 
+    implicit val separator = ','
+  
 	  val INITIAL_STATE = 0
 	  val INSIDE_STRING = 1
 	  val QUOTE_HANDLING = 2
@@ -88,8 +90,8 @@ object SimpleCsvParser {
 	    }
 	  }
 
-	  def fromString(source: String, sep: Char = ','): Vector[Vector[String]] = {
-	    val parser = new Parser(source, sep)
+	  def fromString(source: String)(implicit separator: Char = ','): Vector[Vector[String]] = {
+	    val parser = new Parser(source, separator)
 	    parser.parse()
 	  }
 	}

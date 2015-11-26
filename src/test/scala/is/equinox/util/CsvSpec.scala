@@ -20,7 +20,7 @@ class CsvSpec extends FlatSpec with MustMatchers {
       val line = "ala\tma\tkota"
 
       // when
-      val csvLines = SimpleCsvParser.fromString(line, '\t')
+      val csvLines = SimpleCsvParser.fromString(line)('\t')
 
       // then
       csvLines must  have size 1
