@@ -3,6 +3,7 @@ package is.equinox.hubris.model
 import org.scalatest.FunSuite
 import is.equinox.util.SimpleCsvParser
 import is.equinox.time.ModifiedFollowing
+import is.equinox.time.`30/360`
 import java.time.LocalDate
 
 class MarketDataSuite extends FunSuite {  
@@ -28,11 +29,12 @@ class MarketDataSuite extends FunSuite {
     val csv = scala.io.Source.fromInputStream(csvIs).mkString
     val cob = LocalDate.of(2011, 11, 10)
     implicit val csvParser = SimpleCsvParser.fromString(_)
-    val curve = YieldCurve.loadFromCsv("usdlibor", cob, csv, ModifiedFollowing)
+    val curve = YieldCurve.loadFromCsv("usdlibor", cob, csv, ModifiedFollowing, `30/360`)
     assert(null != curve)
-    curve.points.foreach{p => Console.println(p)}
+    curve.points.foreach{p => Console.println(p + " => " + curve.discountFactors(p))}
     // bootstrapping from  par swap rates
     // http://docs.fincad.com/support/developerFunc/mathref/DFCurves.htm
+    // page 41 - http://www.mathematik.uni-muenchen.de/~filipo/ZINSMODELLE/zinsmodelle1.pdf
   }
   
 }

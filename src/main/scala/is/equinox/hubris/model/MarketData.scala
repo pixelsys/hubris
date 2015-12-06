@@ -8,6 +8,7 @@ import is.equinox.hubris.model.marketdata._
 import is.equinox.time.BusinessDayConvention
 import java.time.Period
 import java.time.temporal.ChronoUnit
+import is.equinox.time.DayCountConvention
 
 trait MarketData
 
@@ -25,22 +26,46 @@ trait YieldCurve {
   
   val name : String
   val points : List[Rate]
-  lazy val discountFactors : Map[Rate, Double] = bootstrap  
-  def bootstrap : Map[Rate, Double] 
+  val discountFactors : Map[Rate, Double] /*= bootstrap  
+  def bootstrap : Map[Rate, Double] */
   
 }
 
-class ZeroCurve(val name: String, val points: List[Rate]) extends YieldCurve {
+class ZeroCurve(val name: String, val points: List[Rate], val discountFactors : Map[Rate, Double]) extends YieldCurve {
   
-  def bootstrap = {
-    ???
-  }
+  //override def bootstrap = ???
+  
+  
+}
+
+abstract class CurveBootstrap {
+  
+  def bootstrap(points: List[Rate]) : Map[Rate, Double]
+  
+}
+
+class NWayBootstrap(cob: LocalDate, dayCountCon: DayCountConvention) extends CurveBootstrap {
+  
+  def df(bootstrap: Double, rate: Double, start: LocalDate, end: LocalDate, dayCountCon: DayCountConvention) : Double = {
+     bootstrap / (1 + rate * dayCountCon.factor(start, end))
+  }   
+  
+  def bootstrap(points: List[Rate]): Map[Rate, Double] = {
+    val map = new scala.collection.mutable.HashMap[LocalDate, Double]
+    val dfList = points.map{p => {
+      val bootstrap = if(p.startDate == cob) { 1 } else { map(p.startDate) }
+      val discF = df(bootstrap, p.rate, p.startDate, p.endDate, dayCountCon)
+      map.getOrElseUpdate(p.endDate, discF)
+      p -> discF
+    }}
+    dfList.toMap
+  }  
   
 }
 
 object YieldCurve {  
   
-  def loadFromCsv(name: String, cob: LocalDate, csvString: String, dayCon: BusinessDayConvention)(implicit csvParser : String => Vector[Vector[String]]) = {
+  def loadFromCsv(name: String, cob: LocalDate, csvString: String, dayCon: BusinessDayConvention, dayCountCon: DayCountConvention)(implicit csvParser : String => Vector[Vector[String]]) = {
      val csv = csvParser(csvString)
      val points = csv.tail.map{row => {
         val instrument = row(0)
@@ -54,8 +79,10 @@ object YieldCurve {
           case "swap" => new ParSwapRate(term, startDate, endDate, rate)
           case _ => throw new IllegalStateException("Invalid instrument: " + instrument)
         }
-      }}
-     new ZeroCurve(name, points.toList)
+      }}.toList
+     val bootstrapper = new NWayBootstrap(cob, dayCountCon)
+     val discountFactors = bootstrapper.bootstrap(points)
+     new ZeroCurve(name, points, discountFactors)
   }
   
 }
