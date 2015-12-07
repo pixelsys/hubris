@@ -50,13 +50,35 @@ class NWayBootstrap(cob: LocalDate, dayCountCon: DayCountConvention) extends Cur
      bootstrap / (1 + rate * dayCountCon.factor(start, end))
   }   
   
+  def dfSwap(swapRate: Double, bootstrapValue: Double, start: LocalDate, end: LocalDate, dayCountCon: DayCountConvention) : Double = {
+     (1 - swapRate * bootstrapValue) / (1 + swapRate * dayCountCon.factor(start, end))
+  }
+  
   def bootstrap(points: List[Rate]): Map[Rate, Double] = {
-    val map = new scala.collection.mutable.HashMap[LocalDate, Double]
+    val mmMap = new scala.collection.mutable.HashMap[LocalDate, Double]
+    var swapBootstrapValue = -1
     val dfList = points.map{p => {
-      val bootstrap = if(p.startDate == cob) { 1 } else { map(p.startDate) }
-      val discF = df(bootstrap, p.rate, p.startDate, p.endDate, dayCountCon)
-      map.getOrElseUpdate(p.endDate, discF)
-      p -> discF
+      val dfValue = p match {
+        case mm: MoneyMarketRate => {
+          val bootstrap = if(p.startDate == cob) { 1 } else { mmMap(p.startDate) }
+          val discF = df(bootstrap, p.rate, p.startDate, p.endDate, dayCountCon)
+          mmMap.getOrElseUpdate(p.endDate, discF)
+          discF
+        }
+        case fra: FRARate => {
+          ???
+        }
+        case swap: ParSwapRate => {
+          if(-1 == swapBootstrapValue) {
+            // needs to be initialised first 
+          } else {
+            
+          }
+          ???
+        }
+        case _ => throw new IllegalArgumentException("Unsupported rate type: " + p)
+      }
+      p -> dfValue
     }}
     dfList.toMap
   }  
