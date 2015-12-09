@@ -57,12 +57,16 @@ class NWayBootstrap(cob: LocalDate, dayCountCon: DayCountConvention) extends Cur
   def bootstrap(points: List[Rate]): Map[Rate, Double] = {
     val mmMap = new scala.collection.mutable.HashMap[LocalDate, Double]
     var swapBootstrapValue = -1
+    var lastMMpoint : Option[Rate] = None
+    var tnDate : Option[LocalDate] = None
     val dfList = points.map{p => {
       val dfValue = p match {
         case mm: MoneyMarketRate => {
+          if(isOvernightTerm.unapply(mm.tenor)) { tnDate = Some(mm.endDate) }  
           val bootstrap = if(p.startDate == cob) { 1 } else { mmMap(p.startDate) }
           val discF = df(bootstrap, p.rate, p.startDate, p.endDate, dayCountCon)
           mmMap.getOrElseUpdate(p.endDate, discF)
+          lastMMpoint = Some(p)
           discF
         }
         case fra: FRARate => {

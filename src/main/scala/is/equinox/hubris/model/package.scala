@@ -9,17 +9,31 @@ package object marketdata {
   val MonthsRE = "([0-9]+)M".r                   
   val YearsRE = "([0-9]+)Y".r    
   
+  object isOvernightTerm {
+    def unapply(term: String) = term match {
+      case "ON" | "0D" => true
+      case _ => false
+    }
+  }
+  
+  object isTomorrowTerm {
+    def unapply(term: String) = term match {
+      case "T/N" | "TN" | "1D" => true
+      case _ => false
+    }    
+  }
+  
   def settleDays(term: String) : Int = {
     term.toUpperCase match {
-      case "ON" | "0D" => 0
-      case "T/N" | "1D" => 1
+      case isOvernightTerm() => 0
+      case isTomorrowTerm() => 1
       case _ => 2
     }
   }   
  
   def calculateTerm(start: LocalDate, term: String) : LocalDate = {
     term.toUpperCase match {
-      case "ON" | "T/N" => start.plusDays(1)
+      case isOvernightTerm() | isTomorrowTerm() => start.plusDays(1)
       case DaysRE(days) => start.plusDays(days.toLong)
       case WeeksRE(weeks) => start.plusWeeks(weeks.toLong)
       case MonthsRE(months) => start.plusMonths(months.toLong)
