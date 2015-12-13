@@ -55,33 +55,26 @@ class NWayBootstrap(cob: LocalDate, dayCountCon: DayCountConvention) extends Cur
   }
   
   def bootstrap(points: List[Rate]): Map[Rate, Double] = {
-    val mmMap = new scala.collection.mutable.HashMap[LocalDate, Double]
-    var swapBootstrapValue = -1
-    var lastMMpoint : Option[Rate] = None
-    var tnDate : Option[LocalDate] = None
+    val bootstrapMap = new scala.collection.mutable.HashMap[LocalDate, Double]
+    var swapBootstrapValue = 0.0
+    var lastPoint = points.head
     val dfList = points.map{p => {
       val dfValue = p match {
-        case mm: MoneyMarketRate => {
-          if(isOvernightTerm.unapply(mm.tenor)) { tnDate = Some(mm.endDate) }  
-          val bootstrap = if(p.startDate == cob) { 1 } else { mmMap(p.startDate) }
-          val discF = df(bootstrap, p.rate, p.startDate, p.endDate, dayCountCon)
-          mmMap.getOrElseUpdate(p.endDate, discF)
-          lastMMpoint = Some(p)
-          discF
+        case mm: MoneyMarketRate => {  
+          val bootstrap = if(p.startDate == cob) { 1 } else { bootstrapMap(p.startDate) }
+          df(bootstrap, p.rate, p.startDate, p.endDate, dayCountCon)          
         }
         case fra: FRARate => {
           ???
         }
         case swap: ParSwapRate => {
-          if(-1 == swapBootstrapValue) {
-            // needs to be initialised first 
-          } else {
-            
-          }
-          ???
+          val bootstrap = swapBootstrapValue + dayCountCon.factor(lastPoint.startDate, lastPoint.endDate) * bootstrapMap(lastPoint.endDate)
+          dfSwap(p.rate, bootstrap, lastPoint.endDate, p.endDate, dayCountCon)          
         }
         case _ => throw new IllegalArgumentException("Unsupported rate type: " + p)
       }
+      bootstrapMap(p.endDate) = dfValue
+      lastPoint = p      
       p -> dfValue
     }}
     dfList.toMap
