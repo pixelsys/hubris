@@ -9,6 +9,9 @@ import is.equinox.time.BusinessDayConvention
 import java.time.Period
 import java.time.temporal.ChronoUnit
 import is.equinox.time.DayCountConvention
+import is.equinox.math.CurveInterpolator
+import is.equinox.math.SplineInterpolator
+import is.equinox.math.CurveInterpolationContext
 
 trait MarketData
 
@@ -29,12 +32,21 @@ trait YieldCurve {
   val discountFactors : Map[Rate, Double] /*= bootstrap  
   def bootstrap : Map[Rate, Double] */
   
+  def interpolate(date: LocalDate) : Double
+  
+  def discountFactor(date: LocalDate) : Double = {
+    val dfPoints = discountFactors.map{ case(k, v) => k.endDate -> v }
+    //if(!dfPoints.contains(date)) {
+      //Console.println("hoppare zimi: " + date)
+    //}
+    dfPoints.getOrElse(date, interpolate(date))
+  }
+  
 }
 
-class ZeroCurve(val name: String, val points: List[Rate], val discountFactors : Map[Rate, Double]) extends YieldCurve {
+class ZeroCurve(val name: String, val points: List[Rate], val discountFactors : Map[Rate, Double], interpolation: (LocalDate => Double)) extends YieldCurve {
   
-  //override def bootstrap = ???
-  
+  def interpolate(date: LocalDate): Double = interpolation(date)
   
 }
 
@@ -84,7 +96,7 @@ class NWayBootstrap(cob: LocalDate, dayCountCon: DayCountConvention) extends Cur
 
 object YieldCurve {  
   
-  def loadFromCsv(name: String, cob: LocalDate, csvString: String, dayCon: BusinessDayConvention, dayCountCon: DayCountConvention)(implicit csvParser : String => Vector[Vector[String]]) = {
+  def loadFromCsv(name: String, cob: LocalDate, csvString: String, dayCon: BusinessDayConvention, dayCountCon: DayCountConvention)(implicit csvParser : String => Vector[Vector[String]], interpolator : CurveInterpolator) = {
      val csv = csvParser(csvString)
      val points = csv.tail.map{row => {
         val instrument = row(0)
@@ -101,7 +113,8 @@ object YieldCurve {
       }}.toList
      val bootstrapper = new NWayBootstrap(cob, dayCountCon)
      val discountFactors = bootstrapper.bootstrap(points)
-     new ZeroCurve(name, points, discountFactors)
+     val ciCtx = new CurveInterpolationContext(discountFactors.map{ case(k, v) => k.endDate -> v }, interpolator)
+     new ZeroCurve(name, points, discountFactors, ciCtx.interpolate)
   }
   
 }
