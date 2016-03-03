@@ -2,6 +2,9 @@ package is.equinox.math
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import scala.collection.immutable.TreeMap
+import breeze.linalg.DenseVector
+import org.apache.commons.math3.analysis.interpolation.SplineInterpolator
 
 sealed trait CurveInterpolator {
 
@@ -37,7 +40,33 @@ object LinearInterpolator extends CurveInterpolator {
 
 object SplineInterpolator extends CurveInterpolator {
   
-  override def interpolate(points : Map[LocalDate, Double], date: LocalDate) = ???
+  import breeze.interpolation._
+  
+  implicit def dateTimeOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isBefore _)
+  
+  override def interpolate(points : Map[LocalDate, Double], date: LocalDate) = {                          
+    val sorted = TreeMap(points.toArray:_*)
+    Console.println(sorted)    
+    val daysBetween = ChronoUnit.DAYS.between(sorted.firstKey, sorted.lastKey).toDouble
+    //Console.println(daysBetween)
+    val xCoords = sorted.keys.map{d => {
+      //Console.println("Days between: " + ChronoUnit.DAYS.between(sorted.firstKey, d))
+      //Console.println("Value: " + (ChronoUnit.DAYS.between(sorted.firstKey, d) / daysBetween))
+      ChronoUnit.DAYS.between(sorted.firstKey, d).toDouble
+    }}.toArray.sorted
+    //Console.println("X Coords: " + xCoords.sorted)
+    val cubicInt = CubicInterpolator(DenseVector(xCoords), DenseVector(sorted.values.toArray))
+    val value = ChronoUnit.DAYS.between(sorted.firstKey, date) 
+    val x = DenseVector(xCoords)
+    val y = DenseVector(sorted.values.toArray)
+    (0 to x.length - 1).map{i => Console.println("[" + x(i) + ";" + y(i) + "]")}
+    Console.println("Returning interpolated value: " + cubicInt(value) + " for date: " + date + ", value: " + value)
+    val interpolator = new SplineInterpolator()
+    val function = interpolator.interpolate(xCoords, sorted.values.toArray);
+    Console.println("Commons3 interpolated value: " + function.value(value) + " for date: " + date + ", value: " + value)
+    ???
+    cubicInt(value)
+  }
   
 }
 

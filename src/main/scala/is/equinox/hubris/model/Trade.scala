@@ -59,7 +59,7 @@ trait FloatingRateNote extends Bond {
       val df = df2 / df1.get()
       val rate = (1 - df) / (df * x._3)
       df1.set(df2) // store for the next coupon
-      //Console.println("Coupon date " + x._2 + " + | T= " + x._3 + " | df1= " + df1.get + " | df2= " + df2 + " |  R= " + rate)
+      Console.println("Coupon date " + x._2 + " + | T= " + x._3 + " | df1= " + df1.get + " | df2= " + df2 + " |  df2/df1= " + df + " |  R= " + rate)
       Coupon(x._1, x._2, x._3, rate * notional * x._3)
     }}
     //Console.println(coupons)
