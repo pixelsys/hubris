@@ -3,7 +3,7 @@ package is.equinox.hubris.model
 import org.scalatest.FunSuite
 import is.equinox.util.SimpleCsvParser
 import is.equinox.time.ModifiedFollowing
-import is.equinox.time.`30/360`
+import is.equinox.time.`Actual/360`
 import java.time.LocalDate
 import is.equinox.math.LinearInterpolator
 import is.equinox.math.SplineInterpolator
@@ -31,8 +31,8 @@ class MarketDataSuite extends FunSuite {
     val csv = scala.io.Source.fromInputStream(csvIs).mkString
     val cob = LocalDate.of(2011, 11, 10)
     implicit val csvParser = SimpleCsvParser.fromString(_)
-    implicit val interpolator = LinearInterpolator
-    YieldCurve.loadFromCsv("usdlibor", cob, csv, ModifiedFollowing, `30/360`)    
+    implicit val interpolator = SplineInterpolator
+    YieldCurve.loadFromCsv("usdlibor", cob, csv, ModifiedFollowing, `Actual/360`)    
   }
   
   test("Yield Curve can be constructed from data in CSV file") {

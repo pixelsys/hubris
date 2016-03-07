@@ -44,8 +44,8 @@ class TradeSpec extends FunSpec {
       val csvIs =  getClass.getResourceAsStream("/mktdata/usdlibor_2011-11-10.csv")
       val csv = scala.io.Source.fromInputStream(csvIs).mkString
       implicit val csvParser = SimpleCsvParser.fromString(_)
-      implicit val interpolator = LinearInterpolator
-      YieldCurve.loadFromCsv("usdlibor", today, csv, ModifiedFollowing, `30/360`)    
+      implicit val interpolator = SplineInterpolator
+      YieldCurve.loadFromCsv("usdlibor", today, csv, ModifiedFollowing, `Actual/360`)    
   }
   
   def createFloatingRateNote(yc: YieldCurve) : FloatingRateNote = {

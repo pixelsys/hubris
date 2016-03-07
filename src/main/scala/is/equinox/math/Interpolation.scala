@@ -64,7 +64,7 @@ object SplineInterpolator extends CurveInterpolator {
     val interpolator = new SplineInterpolator()
     val function = interpolator.interpolate(xCoords, sorted.values.toArray);
     Console.println("Commons3 interpolated value: " + function.value(value) + " for date: " + date + ", value: " + value)
-    ???
+    //???
     cubicInt(value)
   }
   
