@@ -1,8 +1,13 @@
 name := "enx-hubris"
 version := "0.1-SNAPSHOT"
-scalaVersion := "2.12.7"
+javacOptions ++= Seq("-source", "11")
+scalaVersion := "2.13.1"
 //EclipseKeys.withSource := true
 libraryDependencies ++= Seq(
-  "org.scalanlp" %% "breeze" % "1.0-RC2",
-  "org.scalatest" %% "scalatest" % "3.2.0-SNAP10" % Test
+  "org.projectlombok" % "lombok" % "1.18.10",
+  "junit" % "junit" % "4.13" % Test,
+  "com.novocode" % "junit-interface" % "0.11" % Test,
+  "org.scalanlp" %% "breeze" % "1.0",
+  "org.scalatest" %% "scalatest" % "3.1.0" % Test,
+  "org.scalacheck" %% "scalacheck" % "1.14.0" % Test
 )
