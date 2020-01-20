@@ -25,15 +25,17 @@ public class SimpleCsvParserTest {
     // given
     var multiline = "colA,colB,colC\n" +
         "valA1,valB1,valC1\r\n" +
-        "valA2,valB2,valC2";
+        "valA2,valB2,valC2\r\n" +
+        "\"value A\",\"value B\",\"value C\"";
     // when
     var csvLines = SimpleCsvParser.fromString(multiline);
 
     // then
-    assertEquals(3, csvLines.size());
+    assertEquals(4, csvLines.size());
     assertEquals(List.of("colA", "colB", "colC"), csvLines.get(0));
     assertEquals(List.of("valA1", "valB1", "valC1"), csvLines.get(1));
     assertEquals(List.of("valA2", "valB2", "valC2"), csvLines.get(2));
+    assertEquals(List.of("value A", "value B", "value C"), csvLines.get(3));
   }
 
 }

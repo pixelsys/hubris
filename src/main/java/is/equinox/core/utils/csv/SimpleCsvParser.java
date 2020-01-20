@@ -96,9 +96,9 @@ public class SimpleCsvParser {
               default:
                 if (c != separator) {
                   throw new IllegalStateException("Failed to parse field $field at line $line");
-                  //state = Status.INITIAL_STATE;
-                  //doStateZero(c);
                 }
+                state = Status.INITIAL_STATE;
+                doStateZero(c);
                 break;
             }
             break;
