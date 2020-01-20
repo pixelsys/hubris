@@ -95,9 +95,9 @@ public class BusinessCalendarTest {
         new Tuple3<>(LocalDate.of(2013,11,14), LocalDate.of(2014,5,14), 0.5),
         new Tuple3<>(LocalDate.of(2014,5,14), LocalDate.of(2014,11,14), 0.5),
         new Tuple3<>(LocalDate.of(2014,11,14), LocalDate.of(2015,5,14), 0.5),
-        new Tuple3<>(LocalDate.of(2015,5,14), LocalDate.of(2015,11,16), 0.5055555),
+        new Tuple3<>(LocalDate.of(2015,5,14), LocalDate.of(2015,11,16), 0.50555556),
         new Tuple3<>(LocalDate.of(2015,11,16), LocalDate.of(2016,5,16), 0.5),
-        new Tuple3<>(LocalDate.of(2016,5,16), LocalDate.of(2016,11,14), 0.4944444));
+        new Tuple3<>(LocalDate.of(2016,5,16), LocalDate.of(2016,11,14), 0.49444444));
     var couponSchedule = BusinessCalendar.couponSchedule(start, end, new SemiAnnualCouponFrequency(), new ModifiedFollowing(), new DayCountConvention30360());
     var csi = couponSchedule.iterator();
     expected.stream().forEach(x -> {

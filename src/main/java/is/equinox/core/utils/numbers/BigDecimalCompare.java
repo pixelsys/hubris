@@ -5,7 +5,7 @@ import java.math.RoundingMode;
 
 public class BigDecimalCompare {
 
-  public static int DECIMAL_PRECISION = 5;
+  public static int DECIMAL_PRECISION = 7;
 
   public static boolean equal(Double value1, BigDecimal value2) {
     return equal(new BigDecimal(value1), value2, DECIMAL_PRECISION);
