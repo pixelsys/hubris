@@ -1,15 +1,11 @@
 package is.equinox.hubris.model.trade;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
-public abstract class Instrument {
+public interface Instrument {
 
-  protected String id;
-  protected LocalDate effectiveDate;
+  String tradeId();
 
-  abstract BigDecimal value(LocalDate cob);
+  LocalDate effectiveDate();
 
 }

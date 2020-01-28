@@ -23,6 +23,8 @@ public abstract class YieldCurve {
     return dfPoints.getOrDefault(date, interpolate(date));
   }
 
+  public String getName() { return name; }
+
   public List<Rate> points() {
     return points;
   }

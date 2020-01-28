@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 import scala.NotImplementedError;
 
 @RequiredArgsConstructor
-public class NWayBootstrap {
+public class NWayBootstrap implements CurveBootstrap {
 
   private final LocalDate cob;
   private final DayCountConvention dayCountCon;
